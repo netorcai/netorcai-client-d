@@ -1,4 +1,4 @@
-default: lib
+default: library
 
 library:
 	dub build
@@ -6,10 +6,10 @@ library:
 library-cov:
 	dub build -b cov
 
-test:
+unittest:
 	dub test
 
-test-cov:
+unittest-cov:
 	dub test -b unittest-cov
 
 clean:
