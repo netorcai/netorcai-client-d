@@ -6,21 +6,23 @@ import netorcai;
 
 void main()
 {
-    auto c = new Client;
-    c.connect();
-    scope(exit) c.close();
-
-    write("Logging in as a player... "); stdout.flush();
-    c.sendLogin("D-player", "player");
-    c.readLoginAck();
-    writeln("done");
-
-    write("Waiting for GAME_STARTS... "); stdout.flush();
-    auto gameStarts = c.readGameStarts();
-    writeln("done");
-
     try
     {
+        auto c = new Client;
+
+        write("Connecting to netorcai... "); stdout.flush();
+        c.connect();
+        writeln("done");
+
+        write("Logging in as a player... "); stdout.flush();
+        c.sendLogin("D-player", "player");
+        c.readLoginAck();
+        writeln("done");
+
+        write("Waiting for GAME_STARTS... "); stdout.flush();
+        auto gameStarts = c.readGameStarts();
+        writeln("done");
+
         foreach (i; 1..gameStarts.nbTurnsMax)
         {
             write("Waiting for TURN... "); stdout.flush();
@@ -35,6 +37,6 @@ void main()
     }
     catch(Exception e)
     {
-        writeln("Failure: ", e);
+        writeln("Failure: ", e.msg);
     }
 }
