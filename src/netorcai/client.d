@@ -223,3 +223,167 @@ class Client
 
     private Socket sock;
 }
+
+unittest // Client/GL: Everything goes well.
+{
+    import std.process;
+    import netorcai.test;
+
+    // Run netorcai
+    auto n = launchNetorcaiWaitListening();
+
+    // Run game logic
+    auto gameLogic = new Client;
+    scope(exit) destroy(gameLogic);
+    gameLogic.connect();
+    gameLogic.sendLogin("gl", "game logic");
+    gameLogic.readLoginAck();
+
+    // Run player
+    auto player = new Client;
+    scope(exit) destroy(player);
+    player.connect();
+    player.sendLogin("player", "player");
+    player.readLoginAck();
+
+    // Run game
+    n.stdin.writeln("start");
+    n.stdin.flush();
+
+    auto doInit = gameLogic.readDoInit();
+    gameLogic.sendDoInitAck(`{"all_clients": {"gl": "D"}}`.parseJSON);
+    player.readGameStarts();
+
+    foreach (i; 1..doInit.nbTurnsMax)
+    {
+        gameLogic.readDoTurn();
+        gameLogic.sendDoTurnAck(`{"all_clients": {"gl": "D"}}`.parseJSON, -1);
+
+        auto turn = player.readTurn;
+        player.sendTurnAck(turn.turnNumber, `[{"player": "D"}]`.parseJSON);
+    }
+
+    gameLogic.readDoTurn();
+    gameLogic.sendDoTurnAck(`{"all_clients": {"gl": "D"}}`.parseJSON, -1);
+
+    player.readGameEnds();
+    wait(n.pid);
+}
+
+unittest // Kicked instead of expected message
+{
+    import std.process;
+    import netorcai.test;
+    import core.sys.posix.signal : SIGTERM;
+    import std.exception : assertThrown;
+
+    auto n = launchNetorcaiWaitListening;
+    scope(exit) {
+        kill(n.pid, SIGTERM);
+        wait(n.pid);
+    }
+
+    auto kickedClient()
+    {
+        auto c = new Client;
+        c.connect();
+        c.sendString(`¿qué?`);
+        return c;
+    }
+
+    assertThrown(kickedClient.readLoginAck());
+    assertThrown(kickedClient.readGameStarts());
+    assertThrown(kickedClient.readTurn());
+    assertThrown(kickedClient.readGameEnds());
+    assertThrown(kickedClient.readDoInit());
+    assertThrown(kickedClient.readDoTurn());
+}
+
+unittest // Unexpected message received (and not KICK)
+{
+    import std.process;
+    import netorcai.test;
+    import core.sys.posix.signal : SIGTERM;
+    import std.exception : assertThrown;
+
+    auto n = launchNetorcaiWaitListening;
+    scope(exit) {
+        kill(n.pid, SIGTERM);
+        wait(n.pid);
+    }
+
+    auto loggedClient()
+    {
+        auto c = new Client;
+        c.connect();
+        c.sendLogin("I", "player");
+        return c;
+    }
+
+    // LOGIN_ACK instead of something else
+    assertThrown(loggedClient.readGameStarts());
+    assertThrown(loggedClient.readTurn());
+    assertThrown(loggedClient.readGameEnds());
+    assertThrown(loggedClient.readDoInit());
+    assertThrown(loggedClient.readDoTurn());
+
+    // Start a game.
+    auto player1 = loggedClient; // Unexpected msg while reading LOGIN_ACK
+    auto player2 = loggedClient; // GAME_ENDS while reading TURN
+    auto gl = new Client;
+    gl.connect();
+    gl.sendLogin("gl", "game logic");
+
+    gl.readLoginAck;
+    player1.readLoginAck;
+    player2.readLoginAck;
+
+    // Run game
+    n.stdin.writeln("start");
+    n.stdin.flush();
+
+    auto doInit = gl.readDoInit();
+    gl.sendDoInitAck(`{"all_clients": {"gl": "D"}}`.parseJSON);
+    assertThrown(player1.readLoginAck);
+    player2.readGameStarts();
+
+    foreach (i; 1..doInit.nbTurnsMax)
+    {
+        gl.readDoTurn();
+        gl.sendDoTurnAck(`{"all_clients": {"gl": "D"}}`.parseJSON, -1);
+
+        auto turn = player2.readTurn;
+        player2.sendTurnAck(turn.turnNumber, `[{"player": "D"}]`.parseJSON);
+    }
+
+    gl.readDoTurn();
+    gl.sendDoTurnAck(`{"all_clients": {"gl": "D"}}`.parseJSON, -1);
+
+    assertThrown(player2.readTurn);
+}
+
+unittest // Socket errors
+{
+    import std.process;
+    import netorcai.test;
+    import core.sys.posix.signal : SIGTERM;
+    import core.thread;
+    import std.exception : assertThrown;
+
+    auto n = launchNetorcaiWaitListening;
+    scope(exit) {
+        kill(n.pid, SIGTERM);
+        wait(n.pid);
+    }
+
+    // Never connected
+    auto c = new Client;
+    assertThrown(c.sendString(`Hello!`));
+
+    // Disconnected
+    c.connect();
+    c.sendLogin("I", "superplayer");
+    assertThrown(c.readLoginAck);
+    Thread.sleep(dur!"seconds"(2));
+    assertThrown(c.readLoginAck);
+}
