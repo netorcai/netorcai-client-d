@@ -27,14 +27,14 @@ PlayerInfo parsePlayerInfo(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "player_id": 0,
       "nickname": "jugador",
       "remote_address": "127.0.0.1:59840",
       "is_connected": true
     }`;
 
-    PlayerInfo pinfo = parseJSON(s).parsePlayerInfo;
+    const PlayerInfo pinfo = parseJSON(s).parsePlayerInfo;
     assert(pinfo.playerID == 0);
     assert(pinfo.nickname == "jugador");
     assert(pinfo.remoteAddress == "127.0.0.1:59840");
@@ -56,7 +56,7 @@ PlayerInfo[] parsePlayersInfo(JSONValue[] array)
 }
 unittest
 {
-    string s = `[
+    immutable string s = `[
       {
         "player_id": 0,
         "nickname": "jugador",
@@ -71,7 +71,7 @@ unittest
       }
     ]`;
 
-    PlayerInfo[] pinfos = parseJSON(s).array.parsePlayersInfo;
+    const PlayerInfo[] pinfos = parseJSON(s).array.parsePlayersInfo;
     assert(pinfos.length == 2);
 
     assert(pinfos[0].playerID == 0);
@@ -103,6 +103,7 @@ struct GameStartsMessage
     JSONValue initialGameState; /// Game-dependent object.
 }
 
+/// Parses a GAME_STARTS metaprotocol message
 GameStartsMessage parseGameStartsMessage(JSONValue o)
 {
     GameStartsMessage m;
@@ -119,7 +120,7 @@ GameStartsMessage parseGameStartsMessage(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "message_type": "GAME_STARTS",
       "player_id": 0,
       "players_info": [
@@ -137,7 +138,7 @@ unittest
       "initial_game_state": {}
     }`;
 
-    GameStartsMessage m = parseJSON(s).parseGameStartsMessage;
+    const GameStartsMessage m = parseJSON(s).parseGameStartsMessage;
     assert(m.playerID == 0);
     assert(m.playersInfo.length == 1);
     assert(m.playersInfo[0] == `{"player_id":0,"nickname":"jugador",
@@ -157,6 +158,7 @@ struct GameEndsMessage
     JSONValue gameState; /// Game-dependent object.
 }
 
+/// Parses a GAME_ENDS metaprotocol message
 GameEndsMessage parseGameEndsMessage(JSONValue o)
 {
     GameEndsMessage m;
@@ -167,13 +169,13 @@ GameEndsMessage parseGameEndsMessage(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "message_type": "GAME_ENDS",
       "winner_player_id": 0,
       "game_state": {}
     }`;
 
-    GameEndsMessage m = s.parseJSON.parseGameEndsMessage;
+    const GameEndsMessage m = s.parseJSON.parseGameEndsMessage;
     assert(m.winnerPlayerID == 0);
     assert(m.gameState.object.length == 0);
 }
@@ -186,6 +188,7 @@ struct TurnMessage
     JSONValue gameState; /// Game-dependent object.
 }
 
+/// Parses a TURN metaprotocol message
 TurnMessage parseTurnMessage(JSONValue o)
 {
     TurnMessage m;
@@ -197,7 +200,7 @@ TurnMessage parseTurnMessage(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "message_type": "TURN",
       "turn_number": 0,
       "game_state": {},
@@ -211,7 +214,7 @@ unittest
       ]
     }`;
 
-    TurnMessage m = s.parseJSON.parseTurnMessage;
+    const TurnMessage m = s.parseJSON.parseTurnMessage;
     assert(m.turnNumber == 0);
     assert(m.gameState.object.length == 0);
     assert(m.playersInfo == `[{"player_id":0,"nickname":"jugador",
@@ -219,12 +222,14 @@ unittest
         "is_connected":true}]`.parseJSON.array.parsePlayersInfo);
 }
 
+/// Content of a DO_INIT metaprotocol message
 struct DoInitMessage
 {
-    int nbPlayers;
-    int nbTurnsMax;
+    int nbPlayers; /// The number of players of the game
+    int nbTurnsMax; /// The maximum number of turns of the game
 }
 
+/// Parses a DO_INIT metaprotocol message
 DoInitMessage parseDoInitMessage(JSONValue o)
 {
     DoInitMessage m;
@@ -235,24 +240,26 @@ DoInitMessage parseDoInitMessage(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "message_type": "DO_INIT",
       "nb_players": 4,
       "nb_turns_max": 100
     }`;
 
-    DoInitMessage m = s.parseJSON.parseDoInitMessage;
+    immutable DoInitMessage m = s.parseJSON.parseDoInitMessage;
     assert(m.nbPlayers == 4);
     assert(m.nbTurnsMax == 100);
 }
 
+/// Convenient struct for the player actions of a DO_TURN metaprotocol message
 struct PlayerActions
 {
-    int playerID;
-    int turnNumber;
-    JSONValue actions;
+    int playerID; /// The identifier of the player that issued the actions
+    int turnNumber; /// The turn number the actions come from
+    JSONValue actions; /// The actions themselves
 }
 
+/// Parses the playerActions field of a DO_TURN metaprotocol message
 PlayerActions parsePlayerActions(JSONValue o)
 {
     PlayerActions pa;
@@ -264,23 +271,25 @@ PlayerActions parsePlayerActions(JSONValue o)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "player_id": 2,
       "turn_number": 4,
       "actions": []
     }`;
 
-    PlayerActions pa = s.parseJSON.parsePlayerActions;
+    immutable PlayerActions pa = s.parseJSON.parsePlayerActions;
     assert(pa.playerID == 2);
     assert(pa.turnNumber == 4);
     assert(pa.actions.array.length == 0);
 }
 
+/// Content of a DO_TURN metaprotocol message
 struct DoTurnMessage
 {
-    PlayerActions[] playerActions;
+    PlayerActions[] playerActions; /// The ordered list of player actions
 }
 
+/// Parses a DO_TURN metaprotocol message
 DoTurnMessage parseDoTurnMessage(JSONValue v)
 {
     DoTurnMessage m;
@@ -297,7 +306,7 @@ DoTurnMessage parseDoTurnMessage(JSONValue v)
 }
 unittest
 {
-    string s = `{
+    immutable string s = `{
       "message_type": "DO_TURN",
       "player_actions": [
         {

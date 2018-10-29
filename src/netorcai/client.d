@@ -226,8 +226,8 @@ class Client
 
 unittest // Client/GL: Everything goes well.
 {
-    import std.process;
-    import netorcai.test;
+    import std.process : wait;
+    import netorcai.test : launchNetorcaiWaitListening;
 
     // Run netorcai
     auto n = launchNetorcaiWaitListening();
@@ -250,7 +250,7 @@ unittest // Client/GL: Everything goes well.
     n.stdin.writeln("start");
     n.stdin.flush();
 
-    auto doInit = gameLogic.readDoInit();
+    const auto doInit = gameLogic.readDoInit();
     gameLogic.sendDoInitAck(`{"all_clients": {"gl": "D"}}`.parseJSON);
     player.readGameStarts();
 
@@ -272,8 +272,8 @@ unittest // Client/GL: Everything goes well.
 
 unittest // Kicked instead of expected message
 {
-    import std.process;
-    import netorcai.test;
+    import std.process : kill, wait;
+    import netorcai.test : launchNetorcaiWaitListening;
     import core.sys.posix.signal : SIGTERM;
     import std.exception : assertThrown;
 
@@ -301,8 +301,8 @@ unittest // Kicked instead of expected message
 
 unittest // Unexpected message received (and not KICK)
 {
-    import std.process;
-    import netorcai.test;
+    import std.process : kill, wait;
+    import netorcai.test : launchNetorcaiWaitListening;
     import core.sys.posix.signal : SIGTERM;
     import std.exception : assertThrown;
 
@@ -342,7 +342,7 @@ unittest // Unexpected message received (and not KICK)
     n.stdin.writeln("start");
     n.stdin.flush();
 
-    auto doInit = gl.readDoInit();
+    const auto doInit = gl.readDoInit();
     gl.sendDoInitAck(`{"all_clients": {"gl": "D"}}`.parseJSON);
     assertThrown(player1.readLoginAck);
     player2.readGameStarts();
@@ -364,11 +364,12 @@ unittest // Unexpected message received (and not KICK)
 
 unittest // Socket errors
 {
-    import std.process;
-    import netorcai.test;
-    import core.sys.posix.signal : SIGTERM;
-    import core.thread;
+    import std.datetime : dur;
     import std.exception : assertThrown;
+    import std.process : kill, wait;
+    import netorcai.test : launchNetorcaiWaitListening;
+    import core.sys.posix.signal : SIGTERM;
+    import core.thread : Thread;
 
     auto n = launchNetorcaiWaitListening;
     scope(exit) {

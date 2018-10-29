@@ -20,13 +20,13 @@ void main()
         writeln("done");
 
         write("Waiting for GAME_STARTS... "); stdout.flush();
-        auto gameStarts = c.readGameStarts();
+        const auto gameStarts = c.readGameStarts();
         writeln("done");
 
         foreach (i; 1..gameStarts.nbTurnsMax)
         {
             write("Waiting for TURN... "); stdout.flush();
-            auto turn = c.readTurn();
+            const auto turn = c.readTurn();
             c.sendTurnAck(turn.turnNumber, `[{"player": "D"}]`.parseJSON);
             writeln("done");
         }
