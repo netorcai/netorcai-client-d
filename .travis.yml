@@ -13,3 +13,11 @@ script:
 
   # run unit tests with coverage
   - make unittest-cov
+
+  # delete non-interesting coverage results
+  - find . -name '*.lst' | grep 'dub_test' | sed -E "s/(.*)/rm -f -- '\1'/" | bash
+
+  # install doveralls and send coverage results with it
+  - nix-shell -p wget --command 'wget -O ./doveralls "https://github.com/ColdenCullen/doveralls/releases/download/v1.3.1/doveralls_linux_travis"'
+  - chmod +x ./doveralls
+  - ./doveralls
