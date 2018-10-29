@@ -6,6 +6,6 @@
     "license": "GPL-3.0",
 
     "dependencies": {
-        "netorcai-client": "~>0.0.1"
+        "netorcai-client": "~>1.0.0"
     }
 }
