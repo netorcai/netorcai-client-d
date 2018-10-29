@@ -31,7 +31,7 @@ void main()
             writeln("done");
         }
 
-        write("Waiting for GAME_ENDS..."); stdout.flush();
+        write("Waiting for GAME_ENDS... "); stdout.flush();
         auto gameEnds = c.readGameEnds();
         writeln("done");
     }
