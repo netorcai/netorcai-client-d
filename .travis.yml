@@ -1,0 +1,15 @@
+language: nix
+nix: 2.1.1
+
+script:
+  # install netorcai
+  - nix-env -f https://github.com/netorcai/pkgs/archive/master.tar.gz -iA netorcai
+  - netorcai --version
+
+  # install dmd and dub
+  - nix-env -f https://github.com/NixOS/nixpkgs/archive/18.09.tar.gz -iA dmd dub
+  - dmd --version
+  - dub --version
+
+  # run unit tests with coverage
+  - make unittest-cov
