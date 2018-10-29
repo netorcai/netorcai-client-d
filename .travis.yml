@@ -3,7 +3,7 @@ nix: 2.1.1
 
 script:
   # install netorcai
-  - nix-env -f https://github.com/netorcai/pkgs/archive/master.tar.gz -iA netorcai
+  - nix-env -f https://github.com/netorcai/pkgs/archive/master.tar.gz -iA netorcai_dev
   - netorcai --version
 
   # install dmd and dub
@@ -21,3 +21,17 @@ script:
   - nix-shell -p wget --command 'wget -O ./doveralls "https://github.com/ColdenCullen/doveralls/releases/download/v1.3.1/doveralls_linux_travis"'
   - chmod +x ./doveralls
   - ./doveralls
+
+  # build and run the example GL and player
+  - dub add-local .
+  - (cd examples/hello-gl && dub build)
+  - (cd examples/hello-player && dub build)
+  - nohup netorcai --autostart --nb-players-max 2 --nb-visus-max 0 --delay-first-turn=500 --delay-turns=500 --nb-turns-max=2 --simple-prompt &
+  - sleep 1
+  - ./examples/hello-gl/hello-gl &
+  - gl=$!
+  - ./examples/hello-player/hello-player &
+  - player1=$!
+  - ./examples/hello-player/hello-player &
+  - player2=$!
+  - wait ${player1} ${player2} ${gl}
