@@ -13,3 +13,4 @@ netorcai-client-test-*
 *.o
 *.obj
 *.lst
+build
