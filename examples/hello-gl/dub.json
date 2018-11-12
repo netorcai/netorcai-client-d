@@ -3,7 +3,7 @@
     "authors": [ "Millian Poquet" ],
     "description": "Game logic test program for netorcai-client",
     "copyright": "Copyright © 2018, Millian Poquet",
-    "license": "GPL-3.0",
+    "license": "public domain",
 
     "dependencies": {
         "netorcai-client": "~>1.0.0"
