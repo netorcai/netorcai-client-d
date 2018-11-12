@@ -18,4 +18,4 @@ Its public API includes:
 [changelog]: http://keepachangelog.com/en/1.0.0/
 [semver]: http://semver.org/spec/v2.0.0.html
 
-[Unreleased]: https://github.com/netorcai/netorcai/compare/v1.0.0...master
+[Unreleased]: https://github.com/netorcai/netorcai-client-d/compare/v1.0.0...master
