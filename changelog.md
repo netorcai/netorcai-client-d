@@ -10,6 +10,10 @@ Its public API includes:
 [//]: =========================================================================
 ## [Unreleased]
 
+### Fixed
+- Multi-part TCP messages were not read/sent correctly.
+  These operations should now be more robust.
+
 [//]: =========================================================================
 ## 1.0.0 - 2018-10-29
 - Initial release.

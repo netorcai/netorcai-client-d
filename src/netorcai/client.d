@@ -50,10 +50,18 @@ class Client
         immutable ushort contentSize = littleEndianToNative!ushort(contentSizeBuf);
 
         // Read content
-        ubyte[] contentBuf;
-        contentBuf.length = contentSize;
-        received = sock.receive(contentBuf);
-        checkSocketOperation(received, "Cannot read content.");
+        int receivedBytes = 0;
+        ubyte[] contentBuf, temporaryBuf;
+        temporaryBuf.length = contentSize;
+
+        while (receivedBytes < contentSize)
+        {
+            received = sock.receive(temporaryBuf);
+            checkSocketOperation(received, "Cannot read content.");
+
+            contentBuf ~= temporaryBuf[0..received];
+            receivedBytes += received;
+        }
 
         return cast(string) contentBuf;
     }
@@ -160,14 +168,25 @@ class Client
     void sendString(in string message)
     {
         string content = toUTF8(message ~ "\n");
+        if (content.length >= 65536)
+            throw new Exception(format!"Content size (%d) does not fit in 16 bits"(content.length));
+
         ushort contentSize = cast(ushort) content.length;
         ubyte[2] contentSizeBuf = nativeToLittleEndian(contentSize);
 
         auto sent = sock.send(contentSizeBuf);
         checkSocketOperation(sent, "Cannot send content size.");
 
-        sent = sock.send(content);
-        checkSocketOperation(sent, "Cannot send content.");
+        // Send content.
+        int sentBytes = 0;
+
+        while (sentBytes < contentSize)
+        {
+            sent = sock.send(content[sentBytes..$]);
+            checkSocketOperation(sent, "Cannot send content.");
+
+            sentBytes += sent;
+        }
     }
 
     /// Send a JSON message on the client socket. Throw Exception on error.
