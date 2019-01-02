@@ -6,6 +6,6 @@
     "license": "public domain",
 
     "dependencies": {
-        "netorcai-client": "~>1.0.0"
+        "netorcai-client": "~>1.0.1"
     }
 }
