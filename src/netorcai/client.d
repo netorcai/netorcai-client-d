@@ -52,10 +52,10 @@ class Client
         // Read content
         int receivedBytes = 0;
         ubyte[] contentBuf, temporaryBuf;
-        temporaryBuf.length = contentSize;
 
         while (receivedBytes < contentSize)
         {
+            temporaryBuf.length = contentSize - receivedBytes;
             received = sock.receive(temporaryBuf);
             checkSocketOperation(received, "Cannot read content.");
 
