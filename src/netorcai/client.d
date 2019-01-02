@@ -188,6 +188,19 @@ class Client
             sentBytes += sent;
         }
     }
+    unittest // Message is too big
+    {
+        import std.algorithm : fill;
+        import std.conv : to;
+        import std.range : repeat;
+        import std.exception : assertThrown;
+
+        dchar[66000] chars;
+        fill(chars[], 'a');
+
+        Client c = new Client;
+        assertThrown(c.sendString(to!string(chars)));
+    }
 
     /// Send a JSON message on the client socket. Throw Exception on error.
     void sendJson(in JSONValue message)
