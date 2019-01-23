@@ -18,6 +18,7 @@ class Client
     this()
     {
         sock = new Socket(AddressFamily.INET, SocketType.STREAM);
+        sock.setOption(SocketOptionLevel.TCP, SocketOption.TCP_NODELAY, 1);
     }
 
     /// Destructor. Closes the socket if needed.

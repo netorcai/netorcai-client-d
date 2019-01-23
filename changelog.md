@@ -9,7 +9,10 @@ Its public API includes:
 
 [//]: =========================================================================
 ## [Unreleased]
-
+### Fixed
+- `TCP_NODELAY` was not set, which caused a very high latency.
+  On my machine, 1000 turns of local hello-gl+hello-player took
+  more than 40 seconds, now it takes 200 ms.
 
 [//]: =========================================================================
 ## [1.0.1] - 2019-01-02
