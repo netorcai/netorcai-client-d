@@ -1,3 +1,5 @@
+.PHONY: default library library-cov unittest unittest-cov clean
+
 default: library
 
 library:
