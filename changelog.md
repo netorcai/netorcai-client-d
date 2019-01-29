@@ -9,6 +9,9 @@ Its public API includes:
 
 [//]: =========================================================================
 ## [Unreleased]
+### Added
+- Support for special players (netorcai metaprotocol update).
+
 ### Fixed
 - `TCP_NODELAY` was not set, which caused a very high latency.
   On my machine, 1000 turns of local hello-gl+hello-player took
