@@ -94,8 +94,9 @@ struct LoginAckMessage
 /// Content of a GAME_STARTS metaprotocol message
 struct GameStartsMessage
 {
-    int playerID; /// Caller's player identifier. players: [0..nbPlayers[. visu: -1
+    int playerID; /// Caller's player identifier. players: [0..nbPlayers+nbSpecialPlayers[. visu: -1
     int nbPlayers; /// Number of players in the game
+    int nbSpecialPlayers; /// Number of special players in the game
     int nbTurnsMax; /// Maximum number of turns. Game can finish before it
     double msBeforeFirstTurn; /// Time before the first TURN is sent (in ms)
     double msBetweenTurns; /// Time between two consecutive TURNs (in ms)
@@ -110,6 +111,7 @@ GameStartsMessage parseGameStartsMessage(JSONValue o)
 
     m.playerID = o["player_id"].getInt;
     m.nbPlayers = o["nb_players"].getInt;
+    m.nbSpecialPlayers = o["nb_special_players"].getInt;
     m.nbTurnsMax = o["nb_turns_max"].getInt;
     m.msBeforeFirstTurn = o["milliseconds_before_first_turn"].getDouble;
     m.msBetweenTurns = o["milliseconds_between_turns"].getDouble;
@@ -132,6 +134,7 @@ unittest
         }
       ],
       "nb_players": 4,
+      "nb_special_players": 0,
       "nb_turns_max": 100,
       "milliseconds_before_first_turn": 1000,
       "milliseconds_between_turns": 1000,
@@ -145,6 +148,7 @@ unittest
         "remote_address":"127.0.0.1:59840",
         "is_connected":true}`.parseJSON.parsePlayerInfo);
     assert(m.nbPlayers == 4);
+    assert(m.nbSpecialPlayers == 0);
     assert(m.nbTurnsMax == 100);
     assert(m.msBeforeFirstTurn == 1000);
     assert(m.msBetweenTurns == 1000);
@@ -226,6 +230,7 @@ unittest
 struct DoInitMessage
 {
     int nbPlayers; /// The number of players of the game
+    int nbSpecialPlayers; /// Number of special players in the game
     int nbTurnsMax; /// The maximum number of turns of the game
 }
 
@@ -234,6 +239,7 @@ DoInitMessage parseDoInitMessage(JSONValue o)
 {
     DoInitMessage m;
     m.nbPlayers = o["nb_players"].getInt;
+    m.nbSpecialPlayers = o["nb_special_players"].getInt;
     m.nbTurnsMax = o["nb_turns_max"].getInt;
 
     return m;
@@ -243,11 +249,13 @@ unittest
     immutable string s = `{
       "message_type": "DO_INIT",
       "nb_players": 4,
+      "nb_special_players": 0,
       "nb_turns_max": 100
     }`;
 
     immutable DoInitMessage m = s.parseJSON.parseDoInitMessage;
     assert(m.nbPlayers == 4);
+    assert(m.nbSpecialPlayers == 0);
     assert(m.nbTurnsMax == 100);
 }
 
