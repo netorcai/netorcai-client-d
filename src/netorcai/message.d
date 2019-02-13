@@ -4,6 +4,7 @@ import std.json;
 import std.exception;
 
 import netorcai.json_util;
+import netorcai.metaprotocol_version;
 
 /// Stores information about one player
 struct PlayerInfo
@@ -88,7 +89,23 @@ unittest
 /// Content of a LOGIN_ACK metaprotocol message
 struct LoginAckMessage
 {
-    // ¯\_(ツ)_/¯
+    string metaprotocolVersion; /// netorcai's metaprotocol version
+}
+
+/// Parses a LOGIN_ACK metaprotocol message
+LoginAckMessage parseLoginAckMessage(JSONValue o)
+{
+    LoginAckMessage m;
+
+    m.metaprotocolVersion = o["metaprotocol_version"].str;
+    if (m.metaprotocolVersion != metaprotocolVersion)
+    {
+        import std.stdio;
+        writefln("Warning: netorcai uses version '%s' while netorcai-client-d uses '%s'",
+            m.metaprotocolVersion, metaprotocolVersion);
+    }
+
+    return m;
 }
 
 /// Content of a GAME_STARTS metaprotocol message

@@ -10,6 +10,7 @@ import std.exception;
 
 import netorcai.message;
 import netorcai.json_util;
+import netorcai.metaprotocol_version;
 
 /// Netorcai metaprotocol client class (D version)
 class Client
@@ -80,7 +81,7 @@ class Client
         switch (msg["message_type"].str)
         {
         case "LOGIN_ACK":
-            return LoginAckMessage();
+            return parseLoginAckMessage(msg);
         case "KICK":
             throw new Exception(format!"Kicked from netorai. Reason: %s"(msg["kick_reason"].str));
         default:
@@ -212,7 +213,7 @@ class Client
     /// Send a LOGIN message on the client socket. Throw Exception on error.
     void sendLogin(in string nickname, in string role)
     {
-        JSONValue msg = ["message_type" : "LOGIN", "nickname" : nickname, "role" : role];
+        JSONValue msg = ["message_type" : "LOGIN", "nickname" : nickname, "role" : role, "metaprotocol_version": metaprotocolVersion];
 
         sendJson(msg);
     }
@@ -420,4 +421,28 @@ unittest // Socket errors
     assertThrown(c.readLoginAck);
     Thread.sleep(dur!"seconds"(2));
     assertThrown(c.readLoginAck);
+}
+
+unittest // Non-critical metaprotocol version mismatch
+{
+    import std.process : kill, wait;
+    import netorcai.test : launchNetorcaiWaitListening;
+    import core.sys.posix.signal : SIGTERM;
+    import std.exception : assertNotThrown;
+
+    auto n = launchNetorcaiWaitListening;
+    scope(exit) {
+        kill(n.pid, SIGTERM);
+        wait(n.pid);
+    }
+
+    minorVersion += 1;
+    scope(exit) {
+        minorVersion -= 1;
+    }
+
+    auto c = new Client;
+    c.connect();
+    c.sendLogin("d-test", "player");
+    assertNotThrown(c.readLoginAck);
 }

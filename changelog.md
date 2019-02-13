@@ -11,6 +11,7 @@ Its public API includes:
 ## [Unreleased]
 ### Added
 - Support for special players (netorcai metaprotocol update).
+- Metaprotocol version handshake (netorcai metaprotocol update).
 
 ### Fixed
 - `TCP_NODELAY` was not set, which caused a very high latency.
