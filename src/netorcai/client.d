@@ -45,11 +45,11 @@ class Client
     string recvString()
     {
         // Read content size
-        ubyte[2] contentSizeBuf;
+        ubyte[4] contentSizeBuf;
         auto received = sock.receive(contentSizeBuf);
         checkSocketOperation(received, "Cannot read content size.");
 
-        immutable ushort contentSize = littleEndianToNative!ushort(contentSizeBuf);
+        immutable uint contentSize = littleEndianToNative!uint(contentSizeBuf);
 
         // Read content
         int receivedBytes = 0;
@@ -170,11 +170,11 @@ class Client
     void sendString(in string message)
     {
         string content = toUTF8(message ~ "\n");
-        if (content.length >= 65536)
-            throw new Exception(format!"Content size (%d) does not fit in 16 bits"(content.length));
+        if (content.length >= 16777215)
+            throw new Exception(format!"Content size (%d) does not fit in 24 bits"(content.length));
 
-        ushort contentSize = cast(ushort) content.length;
-        ubyte[2] contentSizeBuf = nativeToLittleEndian(contentSize);
+        uint contentSize = cast(uint) content.length;
+        ubyte[4] contentSizeBuf = nativeToLittleEndian(contentSize);
 
         auto sent = sock.send(contentSizeBuf);
         checkSocketOperation(sent, "Cannot send content size.");
