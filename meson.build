@@ -1,4 +1,4 @@
-project('netorcai-client', 'd', version: '1.0.0')
+project('netorcai-client', 'd', version: '2.0.0')
 
 src = [
     'src/netorcai/client.d',

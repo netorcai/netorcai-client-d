@@ -9,6 +9,9 @@ Its public API includes:
 
 [//]: =========================================================================
 ## [Unreleased]
+
+[//]: =========================================================================
+## [2.0.0] - 2019-02-24 - for [netorcai-2.0.0]
 ### Changed
 - Message header is now 32-bit (netorcai metaprotocol update).
 - License is now LGPL-3.0 — goal is to allow client programs to be non-GPL.
@@ -36,5 +39,8 @@ Its public API includes:
 [changelog]: http://keepachangelog.com/en/1.0.0/
 [semver]: http://semver.org/spec/v2.0.0.html
 
-[Unreleased]: https://github.com/netorcai/netorcai-client-d/compare/v1.0.1...master
+[Unreleased]: https://github.com/netorcai/netorcai-client-d/compare/v2.0.0...master
+[2.0.0]: https://github.com/netorcai/netorcai-client-d/compare/v1.0.1...v2.0.0
 [1.0.1]: https://github.com/netorcai/netorcai-client-d/compare/v1.0.0...v1.0.1
+
+[netorcai-2.0.0]: https://netorcai.readthedocs.io/en/latest/changelog.html#v2-0-0
